@@ -61,6 +61,13 @@
 /processorParam:TextureFormat=Color
 /build:Bacteria3.png
 
+#begin Public Pixel.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Public Pixel.spritefont
+
 #begin RNA-Attack.png
 /importer:TextureImporter
 /processor:TextureProcessor
