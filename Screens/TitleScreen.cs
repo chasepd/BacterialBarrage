@@ -19,11 +19,13 @@ namespace BacterialBarrage.Screens
         private Texture2D _bacteria1Texture;
         private Texture2D _bacteria2Texture;
         private Texture2D _bacteria3Texture;
+        private bool _backHasBeenUp;
         public TitleScreen(Game game) : base(game) { }
 
         public override void LoadContent()
         {
             base.LoadContent();
+            _backHasBeenUp = false;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _font = Content.Load<SpriteFont>("Public Pixel");
             _virusTexture = Content.Load<Texture2D>("Virus");
@@ -35,15 +37,20 @@ namespace BacterialBarrage.Screens
         public override void Update(GameTime gameTime)
         {
             var kstate = KeyboardExtended.GetState();
+            var p1GamepadState = GamePad.GetState(PlayerIndex.One);           
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.Escape))
+            if ((p1GamepadState.Buttons.Back == ButtonState.Pressed && _backHasBeenUp) || kstate.WasKeyJustDown(Keys.Escape))
                 Game.Exit();
 
-            if(kstate.WasKeyJustDown(Keys.C))
+            if(p1GamepadState.Buttons.A == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.C))
                 ScreenManager.LoadScreen(new ControlsDisplayScreen(Game));
 
-            if (kstate.WasKeyJustDown(Keys.Enter))
+            if (p1GamepadState.Buttons.Start == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.Enter))
                 ScreenManager.LoadScreen(new GameplayScreen(Game));
+
+            //Make sure we're not still catching the button press from the previous screen
+            if (p1GamepadState.Buttons.Back == ButtonState.Released)
+                _backHasBeenUp = true;
         }
 
         public override void Draw(GameTime gameTime)
@@ -87,8 +94,8 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
-                "PRESS ENTER TO PLAY",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ENTER TO PLAY").X / 2 * _scale / 8, ScreenHeight / 12 * 2),
+                "PRESS ENTER OR START TO PLAY",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ENTER OR START TO PLAY").X / 2 * _scale / 8, ScreenHeight / 12 * 2),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -109,8 +116,8 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
-                "PRESS C TO VIEW CONTROLS",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS C TO VIEW CONTROLS").X / 2 * _scale / 8, ScreenHeight / 12 * (float)4.5),
+                "PRESS C OR GAMEPAD A TO VIEW CONTROLS",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS C OR GAMEPAD A TO VIEW CONTROLS").X / 2 * _scale / 8, ScreenHeight / 12 * (float)4.5),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -120,8 +127,8 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
-                "PRESS ESC TO EXIT",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ESC TO EXIT").X / 2 * _scale / 8, ScreenHeight / 12 * (float)5.5),
+                "PRESS ESC OR BACK TO EXIT",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ESC OR BACK TO EXIT").X / 2 * _scale / 8, ScreenHeight / 12 * (float)5.5),
                 Color.White,
                 0f,
                 Vector2.One,

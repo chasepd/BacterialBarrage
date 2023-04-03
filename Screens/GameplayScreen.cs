@@ -18,6 +18,7 @@ namespace BacterialBarrage.Screens
 
         public override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.Clear(Color.DarkRed);
         }
     }
 }

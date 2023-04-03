@@ -20,6 +20,8 @@ namespace BacterialBarrage.Screens
         private Texture2D _stickLeft;
         private Texture2D _stickRight;
 
+
+
         public ControlsDisplayScreen(Game game) : base(game) { }
 
         public override void LoadContent()
@@ -36,7 +38,7 @@ namespace BacterialBarrage.Screens
 
         public override void Update(GameTime gameTime)
         {
-            if (KeyboardExtended.GetState().WasKeyJustDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || KeyboardExtended.GetState().WasKeyJustDown(Keys.Escape))
                 ScreenManager.LoadScreen(new TitleScreen(Game));
         }
 
@@ -308,8 +310,8 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
-                "PRESS ESC TO RETURN TO MENU",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ESC TO RETURN TO MENU").X / 2 * _scale / 8, ScreenHeight / 16 * 15),
+                "PRESS ESC OR BACK TO RETURN TO MENU",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ESC OR BACK TO RETURN TO MENU").X / 2 * _scale / 8, ScreenHeight / 16 * 15),
                 Color.White,
                 0f,
                 Vector2.One,
