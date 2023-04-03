@@ -151,20 +151,20 @@ namespace BacterialBarrage.Screens
             var sourceRectangle = new Rectangle(0, 0, _virusTexture.Width / 5, _virusTexture.Height);
 
             _spriteBatch.Draw(_virusTexture,
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("=? MYSTERY").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("=? MYSTERY").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale / 8 - 5 * _scale,
                 ScreenHeight / 12 * 8 - _font.MeasureString("=? MYSTERY").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
                 Vector2.One,
-                _scale,
+                _scale / 8,
                 SpriteEffects.None,
                 0f);
 
             _spriteBatch.DrawString(
                 _font,
                 "=? MYSTERY",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("=? MYSTERY").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("=? MYSTERY").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale / 8,
                 ScreenHeight / 12 * 8 - _font.MeasureString("=? MYSTERY").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
@@ -173,21 +173,21 @@ namespace BacterialBarrage.Screens
                 SpriteEffects.None,
                 0f);
 
-            _spriteBatch.Draw(_bacteria1Texture,
-                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 30 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
+            _spriteBatch.Draw(_bacteria3Texture,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 30 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale / 8,
                 ScreenHeight / 12 * 9 - _font.MeasureString(" = 30 POINTS").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
                 Vector2.One,
-                _scale,
+                _scale / 8,
                 SpriteEffects.None,
                 0f);
 
             _spriteBatch.DrawString(
                 _font,
                 " = 30 POINTS",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 30 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 30 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale / 8,
                 ScreenHeight / 12 * 9 - _font.MeasureString(" = 30 POINTS").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
@@ -197,20 +197,20 @@ namespace BacterialBarrage.Screens
                 0f);
 
             _spriteBatch.Draw(_bacteria2Texture,
-                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 20 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 20 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale / 8,
                 ScreenHeight / 12 * 10 - _font.MeasureString(" = 20 POINTS").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
                 Vector2.One,
-                _scale,
+                _scale / 8,
                 SpriteEffects.None,
                 0f);
 
             _spriteBatch.DrawString(
                 _font,
                 " = 20 POINTS",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 20 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 20 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale / 8,
                 ScreenHeight / 12 * 10 - _font.MeasureString(" = 20 POINTS").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
@@ -219,21 +219,21 @@ namespace BacterialBarrage.Screens
                 SpriteEffects.None,
                 0f);
 
-            _spriteBatch.Draw(_bacteria3Texture,
-                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 10 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
+            _spriteBatch.Draw(_bacteria1Texture,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 10 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale / 8,
                 ScreenHeight / 12 * 11 - _font.MeasureString(" = 10 POINTS").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
                 Vector2.One,
-                _scale,
+                _scale / 8,
                 SpriteEffects.None,
                 0f);
 
             _spriteBatch.DrawString(
                 _font,
                 " = 10 POINTS",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 10 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
+                new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 10 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale / 8,
                 ScreenHeight / 12 * 11 - _font.MeasureString(" = 10 POINTS").Y / 2 * _scale / 8),
                 Color.White,
                 0f,

@@ -191,8 +191,8 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
-                "SPACE",
-                new Vector2((ScreenWidth / 5 * 2) - _font.MeasureString("SPACE").X / 2 * _scale / 8, ScreenHeight / 16 * 8),
+                "SPACE OR W",
+                new Vector2((ScreenWidth / 5 * 2) - _font.MeasureString("SPACE OR W").X / 2 * _scale / 8, ScreenHeight / 16 * 8),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -202,8 +202,8 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
-                "ENTER",
-                new Vector2((ScreenWidth / 5 * 3) - _font.MeasureString("ENTER").X / 2 * _scale / 8, ScreenHeight / 16 * 8),
+                "UP-ARROW",
+                new Vector2((ScreenWidth / 5 * 3) - _font.MeasureString("UP-ARROW").X / 2 * _scale / 8, ScreenHeight / 16 * 8),
                 Color.White,
                 0f,
                 Vector2.One,

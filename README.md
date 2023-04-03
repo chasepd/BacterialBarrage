@@ -11,3 +11,4 @@ You will need the following to build this:
 - MonoGame installed
 - MonoGame.Extended installed
 - MonoGame.Extended.Input installed
+- MonoGame.Extended.Collisions installed
