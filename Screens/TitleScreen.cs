@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input;
 using MonoGame.Extended.Screens;
 using System;
 using System.Collections.Generic;
@@ -33,8 +34,16 @@ namespace BacterialBarrage.Screens
 
         public override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            var kstate = KeyboardExtended.GetState();
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.Escape))
                 Game.Exit();
+
+            if(kstate.WasKeyJustDown(Keys.C))
+                ScreenManager.LoadScreen(new ControlsDisplayScreen(Game));
+
+            if (kstate.WasKeyJustDown(Keys.Enter))
+                ScreenManager.LoadScreen(new GameplayScreen(Game));
         }
 
         public override void Draw(GameTime gameTime)
@@ -78,8 +87,8 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
-                "PLAY",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("PLAY").X / 2 * _scale / 8, ScreenHeight / 12 * 3),
+                "PRESS ENTER TO PLAY",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ENTER TO PLAY").X / 2 * _scale / 8, ScreenHeight / 12 * 2),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -90,7 +99,29 @@ namespace BacterialBarrage.Screens
             _spriteBatch.DrawString(
                 _font,
                 "BACTERIAL BARRAGE",
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("BACTERIAL BARRAGE").X / 2 * _scale / 8, ScreenHeight / 12 * 4),
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("BACTERIAL BARRAGE").X / 2 * _scale / 8, ScreenHeight / 12 * 3),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+
+            _spriteBatch.DrawString(
+                _font,
+                "PRESS C TO VIEW CONTROLS",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS C TO VIEW CONTROLS").X / 2 * _scale / 8, ScreenHeight / 12 * (float)4.5),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+
+            _spriteBatch.DrawString(
+                _font,
+                "PRESS ESC TO EXIT",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ESC TO EXIT").X / 2 * _scale / 8, ScreenHeight / 12 * (float)5.5),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -102,7 +133,7 @@ namespace BacterialBarrage.Screens
                 _font,
                 "*SCORE ADVANCE TABLE*",
                 new Vector2((ScreenWidth / 2) - _font.MeasureString("*SCORE ADVANCE TABLE*").X / 2 * _scale / 8, 
-                ScreenHeight / 12 * 6 - _font.MeasureString("*SCORE ADVANCE TABLE*").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 7 - _font.MeasureString("*SCORE ADVANCE TABLE*").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -114,7 +145,7 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.Draw(_virusTexture,
                 new Vector2((ScreenWidth / 2) - _font.MeasureString("=? MYSTERY").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 7 - _font.MeasureString("=? MYSTERY").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 8 - _font.MeasureString("=? MYSTERY").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
@@ -127,7 +158,7 @@ namespace BacterialBarrage.Screens
                 _font,
                 "=? MYSTERY",
                 new Vector2((ScreenWidth / 2) - _font.MeasureString("=? MYSTERY").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 7 - _font.MeasureString("=? MYSTERY").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 8 - _font.MeasureString("=? MYSTERY").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -137,7 +168,7 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.Draw(_bacteria1Texture,
                 new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 30 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 8 - _font.MeasureString(" = 30 POINTS").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 9 - _font.MeasureString(" = 30 POINTS").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
@@ -150,7 +181,7 @@ namespace BacterialBarrage.Screens
                 _font,
                 " = 30 POINTS",
                 new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 30 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 8 - _font.MeasureString(" = 30 POINTS").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 9 - _font.MeasureString(" = 30 POINTS").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -160,7 +191,7 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.Draw(_bacteria2Texture,
                 new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 20 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 9 - _font.MeasureString(" = 20 POINTS").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 10 - _font.MeasureString(" = 20 POINTS").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
@@ -173,7 +204,7 @@ namespace BacterialBarrage.Screens
                 _font,
                 " = 20 POINTS",
                 new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 20 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 9 - _font.MeasureString(" = 20 POINTS").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 10 - _font.MeasureString(" = 20 POINTS").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -183,7 +214,7 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.Draw(_bacteria3Texture,
                 new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 10 POINTS").X / 2 * _scale / 8 - sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 10 - _font.MeasureString(" = 10 POINTS").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 11 - _font.MeasureString(" = 10 POINTS").Y / 2 * _scale / 8),
                 sourceRectangle,
                 Color.White,
                 0f,
@@ -196,7 +227,7 @@ namespace BacterialBarrage.Screens
                 _font,
                 " = 10 POINTS",
                 new Vector2((ScreenWidth / 2) - _font.MeasureString(" = 10 POINTS").X / 2 * _scale / 8 + sourceRectangle.Width / 2 * _scale,
-                ScreenHeight / 12 * 10 - _font.MeasureString(" = 10 POINTS").Y / 2 * _scale / 8),
+                ScreenHeight / 12 * 11 - _font.MeasureString(" = 10 POINTS").Y / 2 * _scale / 8),
                 Color.White,
                 0f,
                 Vector2.One,
