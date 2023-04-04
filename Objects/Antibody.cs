@@ -11,9 +11,12 @@ namespace BacterialBarrage.Objects
 {
     internal class Antibody : Attack
     {
-        public Antibody(Texture2D texture) : base(texture)
+        public Antibody(Texture2D texture) : base(texture) { }
+
+        public override void Update(GameTime gameTime)
         {
-            Velocity = new Vector2 (0, -5);
+            base.Update(gameTime);
+            Velocity = new Vector2(0, -300 * Scale.Y);
         }
         public override void OnCollision(CollisionEventArgs collisionEvent) 
         {

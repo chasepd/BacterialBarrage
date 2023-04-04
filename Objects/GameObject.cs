@@ -38,7 +38,7 @@ namespace BacterialBarrage.Objects
             //Sprite = new Sprite(Texture);
         }
 
-        public void Update(GameTime gameTime)
+        public virtual void Update(GameTime gameTime)
         {
             _animationTimeTracker += gameTime.ElapsedGameTime.TotalSeconds;
             if(_animationTimeTracker > _animationTimeDelay) 
