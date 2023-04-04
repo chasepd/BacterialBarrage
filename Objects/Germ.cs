@@ -15,7 +15,7 @@ namespace BacterialBarrage.Objects
     {
         public int PointValue { get; protected set; }
 
-        public Germ() : base()
+        public Germ(Texture2D texture) : base(texture)
         {
             _animationFrames = 5;
         }
@@ -23,7 +23,8 @@ namespace BacterialBarrage.Objects
 
         public override void OnCollision(CollisionEventArgs collisionEvent)
         {
-
+            if(collisionEvent.Other is Antibody || collisionEvent.Other is ShieldTile)
+                IsDead = true;
         }
     }
 }

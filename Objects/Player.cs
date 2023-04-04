@@ -16,7 +16,7 @@ namespace BacterialBarrage.Objects
         public int Score { get; set; }        
         public int LivesRemaining { get; private set; }
 
-        public Player() : base() {
+        public Player(Texture2D texture) : base(texture) {
             Score = 0;
             LivesRemaining = 3;
             _animationFrames = 16;
@@ -24,7 +24,9 @@ namespace BacterialBarrage.Objects
 
         public override void OnCollision(CollisionEventArgs collisionEvent)
         {
-
+            if((collisionEvent.Other is Germ || collisionEvent.Other is RNA) && LivesRemaining <= 0)            
+                IsDead = true;
+            
         }
     }
 }

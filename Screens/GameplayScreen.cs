@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Screens;
@@ -23,20 +24,26 @@ namespace BacterialBarrage.Screens
         private Texture2D _bacteria3Texture;
         private Texture2D _antibodyTexture;
         private Texture2D _rnaTexture;
+        private Texture2D _playerTexture;
         private readonly CollisionComponent _collisionComponent;
         private Player _player1;
         private Player _player2;
-        private List<Germ> _enemies;
+        private List<List<Germ>> _enemies;
         private List<Attack> _attacks;
+        private List<ShieldTile> shieldTiles;
+        private List<GameObject> _allOnScreenObjects;
         private double _roundCountDown;
+        private int _currentLevel;
         private bool _stillInCountDown;
         private bool _aHasBeenUp;
+        private const int _enemiesPerRow = 12;
+        private const int _enemyRows = 5;
         public GameplayScreen(Game game) : base(game) 
         {
             _aHasBeenUp = false;
-            _stillInCountDown = true;
             _collisionComponent = new CollisionComponent(new MonoGame.Extended.RectangleF(0, 0, ScreenWidth, ScreenHeight));
-            _roundCountDown = 0;
+            _currentLevel = 1;
+
         }
 
         public override void LoadContent()
@@ -50,6 +57,8 @@ namespace BacterialBarrage.Screens
             _bacteria3Texture = Content.Load<Texture2D>("Bacteria3");
             _antibodyTexture = Content.Load<Texture2D>("Antibody");
             _rnaTexture = Content.Load<Texture2D>("RNA-Attack");
+            _playerTexture = Content.Load<Texture2D>("WhiteBloodCell");
+            CreateNewLevel();
         }
 
         public override void Update(GameTime gameTime)
@@ -60,11 +69,15 @@ namespace BacterialBarrage.Screens
             if (_stillInCountDown)
             {
                 _roundCountDown += gameTime.ElapsedGameTime.TotalSeconds;
-                if(_roundCountDown > 5)
+                if(_roundCountDown > 7)
                     _stillInCountDown = false;
             }
-            else
+            if(!_stillInCountDown)
             {
+                foreach(var obj in _allOnScreenObjects)
+                {
+                    obj.Update(gameTime);
+                }
                 //Make sure we're not still catching the button press from the previous screen or previous fire
                 if ((p1GamepadState.Buttons.A == ButtonState.Pressed && _aHasBeenUp) || kstate.WasKeyJustDown(Keys.Space) || kstate.WasKeyJustDown(Keys.W))
                 {
@@ -72,20 +85,39 @@ namespace BacterialBarrage.Screens
                     _aHasBeenUp = false;
                 }
 
-                if (p2GamepadState.Buttons.A == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.Up))
+                if ((p2GamepadState.Buttons.A == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.Up)) && _player2 != null)
                     Fire(PlayerIndex.Two);
 
-
+                if (p1GamepadState.Buttons.Y == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.P))
+                {
+                    if (_player2 == null)
+                    {
+                        _player2 = new Player(_playerTexture)
+                        {
+                            Position = new Vector2(0, 0),
+                            Velocity = new Vector2(0, 0),
+                            Scale = new Vector2(_scale / 8, _scale / 8),
+                            Rotation = 0f
+                        };
+                        _allOnScreenObjects.Add(_player2);
+                    }
+                    else
+                    {
+                        _allOnScreenObjects.Remove(_player2);
+                        _player2 = null;                        
+                    }
+                }
+                    
                 if (kstate.IsKeyDown(Keys.A))
                     MoveLeft(PlayerIndex.One, gameTime);
 
-                if (kstate.IsKeyDown(Keys.Left))
+                if (kstate.IsKeyDown(Keys.Left) && _player2 != null)
                     MoveLeft(PlayerIndex.Two, gameTime);
 
                 if (kstate.IsKeyDown(Keys.D))
                     MoveRight(PlayerIndex.One, gameTime);
 
-                if (kstate.IsKeyDown(Keys.Right))
+                if (kstate.IsKeyDown(Keys.Right) && _player2 != null)
                     MoveRight(PlayerIndex.Two, gameTime);
 
             }
@@ -103,8 +135,14 @@ namespace BacterialBarrage.Screens
 
             if (_stillInCountDown)
             {                
-                var text = ((int)(6 - _roundCountDown)).ToString();
-                if (_roundCountDown < 2) 
+                var text = ((int)(8 - _roundCountDown)).ToString();
+
+                if (_roundCountDown < 2)
+                {
+                    text = "LEVEL " + _currentLevel;
+                }
+
+                if (_roundCountDown < 4 && _roundCountDown >= 2) 
                 {
                     text = "READY?";
                 }
@@ -121,17 +159,117 @@ namespace BacterialBarrage.Screens
                     0f);
 
             }
+            else
+            {
+                foreach (var obj in _allOnScreenObjects)
+                {
+                    _spriteBatch.Draw(obj.Texture,
+                        obj.Position,
+                        obj.SourceRectangle,
+                        Color.White,
+                        obj.Rotation,
+                        Vector2.One,
+                        obj.Scale,
+                        SpriteEffects.None,
+                        0f);
+                }
+            }
 
             _spriteBatch.End();
         }
 
+        private void CreateNewLevel()
+        {
+            _enemies = new List<List<Germ>>();
+            _attacks = new List<Attack>();
+            _allOnScreenObjects = new List<GameObject>();
+            _roundCountDown = 0;
+            _stillInCountDown = false;
+            if (_player1 == null)
+            {
+                _player1 = new Player(_playerTexture)
+                {
+                    Position = new Vector2(ScreenWidth / 2 - (_playerTexture.Height * _scale / 8 / 2) , ScreenHeight - (10 * _scale)),
+                    Velocity = new Vector2(0, 0),
+                    Scale = new Vector2(_scale / 8, _scale / 8),
+                    Rotation = 0f
+                };
+                _allOnScreenObjects.Add(_player1);
+            }
+            Random random = new Random();
+            for(int row = 0; row < _enemyRows; row++)
+            {               
+                List<Germ> germRow = new List<Germ>();
+                for(int enemyNo = 0; enemyNo < _enemiesPerRow; enemyNo++)
+                {
+                    var randomValue = random.NextDouble();
+                    int selection;
+
+                    // Increase likelihood of higher point enemies in higher levels
+                    if (randomValue < 0.05 * _currentLevel)                    
+                        selection = 3;
+                    else if (randomValue < 0.10 * _currentLevel)
+                        selection = 2;
+                    else
+                        selection = 1;
+
+                    Germ newGerm = null;
+
+                    switch(selection)
+                    {
+                        case 1:
+                            newGerm = new BacteriaLevel1(_bacteria1Texture) {
+                                Scale = new Vector2(_scale / 8, _scale / 8),
+                                Rotation = 0f
+                            };
+                            break;
+                        case 2:
+                            newGerm = new BacteriaLevel2(_bacteria2Texture) {
+                                Scale = new Vector2(_scale / 8, _scale / 8),
+                                Rotation = 0f
+                            }; ;                            
+                            break;
+                        case 3:
+                            newGerm = new BacteriaLevel3(_bacteria3Texture) {
+                                Scale = new Vector2(_scale / 8, _scale / 8),
+                                Rotation = 0f
+                            };                    
+                            break;
+                    }
+                    newGerm.Velocity = new Vector2(1 * _scale, 0);
+                    newGerm.Position = new Vector2(ScreenWidth / 2 - (_bacteria1Texture.Height * newGerm.Scale.Y + 4 * _scale) * (6 - enemyNo), 20 * _scale + 12 * _scale * (row + 1));
+                    germRow.Add(newGerm);
+                    _allOnScreenObjects.Add(newGerm);
+                }
+                _enemies.Add(germRow);
+            }
+            
+        }
+
         private void Fire(PlayerIndex player)
         {
+            Antibody antibody = new Antibody(_antibodyTexture);
 
+            if(player == PlayerIndex.One)
+            {
+                antibody.Bounds.Position = _player1.Bounds.Position;
+            }
+
+            if(player == PlayerIndex.Two)
+            {
+                antibody.Bounds.Position = _player2.Bounds.Position;
+            }
+            _attacks.Add(antibody);
+            _allOnScreenObjects.Add(antibody);
         }
 
         private void MoveLeft(PlayerIndex player, GameTime gameTime) { }
 
         private void MoveRight(PlayerIndex player, GameTime gameTime) { }
+
+        private void ConstrainPlayer()
+        {
+
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace BacterialBarrage.Objects
 {
     internal class BacteriaLevel3 : Germ
     {
-        public BacteriaLevel3() : base()
+        public BacteriaLevel3(Texture2D texture) : base(texture)
         {
             PointValue = 30;
         }

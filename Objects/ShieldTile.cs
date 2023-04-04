@@ -9,16 +9,16 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace BacterialBarrage.Objects
 {
-    internal class RNA : Attack
+    internal class ShieldTile : GameObject
     {
-        public RNA(Texture2D texture) : base(texture)
+        public ShieldTile(Texture2D texture) : base(texture) 
         {
-            Velocity = new Vector2(0, 5);
+            Velocity = new Vector2 (0, 0);
         }
         public override void OnCollision(CollisionEventArgs collisionEvent)
         {
-            if(collisionEvent.Other is Player || collisionEvent.Other is ShieldTile || collisionEvent.Other is Antibody)  
-                IsDead = true;
+            if (collisionEvent.Other is RNA || collisionEvent.Other is Germ)
+                IsDead = true;                            
         }
     }
 }

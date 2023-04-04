@@ -8,25 +8,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace BacterialBarrage.Objects
 {
     internal abstract class GameObject : ICollisionActor
-    {
-        public Sprite Sprite { get; set; }
-        public IShapeF Bounds => Sprite.GetBoundingRectangle(null);
+    {     
+        public Vector2 Position { get; set; }
+        public float Rotation { get; set; }
+        public Vector2 Scale { get; set; }
+        public IShapeF Bounds => new RectangleF(Position.X, Position.Y, Texture.Width / _animationFrames * Scale.X, Texture.Height * Scale.Y);//Sprite.GetBoundingRectangle(Position, Rotation, Scale);
+        //public Sprite Sprite { get; set; }
         public bool IsDead { get; protected set; }
         public Rectangle SourceRectangle { get; private set; }
         public Texture2D Texture { get; set; }
+        public Vector2 Velocity { get; set; }
         protected int _animationFrames;
         private int _animationFrame;
         private double _animationTimeTracker;
         private const double _animationTimeDelay = 0.5;
 
-        public GameObject()
+        public GameObject(Texture2D texture)
         {
             IsDead = false;
             _animationTimeTracker = 0.0;
+
+            Texture = texture;
+
+            //Sprite = new Sprite(Texture);
         }
 
         public void Update(GameTime gameTime)
