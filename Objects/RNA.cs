@@ -15,10 +15,24 @@ namespace BacterialBarrage.Objects
         {
             Velocity = new Vector2(0, 5);
         }
-        public override void OnCollision(CollisionEventArgs collisionEvent)
+        public override void OnCollision(GameObject other)
         {
-            if(collisionEvent.Other is Player || collisionEvent.Other is ShieldTile || collisionEvent.Other is Antibody)  
-                IsDead = true;
+            if (!IsDead)
+            {                
+                if (other is Player || other is ShieldTile || other is Antibody)
+                {
+                    IsDead = true;
+                    if (other is Player)
+                    {
+                        var player = (Player)other;
+                        player.Damage();
+                    }
+                    else
+                    {
+                        other.IsDead = true;
+                    }
+                }
+            }
         }
     }
 }

@@ -20,11 +20,35 @@ namespace BacterialBarrage.Objects
             _animationFrames = 5;
         }
 
-
-        public override void OnCollision(CollisionEventArgs collisionEvent)
+        public override void Update(GameTime gameTime)
         {
-            if(collisionEvent.Other is Antibody || collisionEvent.Other is ShieldTile)
+            base.Update(gameTime);
+
+            if(Velocity.Y > 0)
+            {
+                Velocity = new Vector2(Velocity.X, Velocity.Y - 50 * Scale.Y * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            }
+            if(Velocity.Y < 0) 
+            {
+                Velocity = new Vector2(Velocity.X, 0);
+            }
+        }
+
+        public override void OnCollision(GameObject other)
+        {
+            if ((other is Player || other is ShieldTile || other is Antibody) && !other.IsDead)
+            {
                 IsDead = true;
+                if (other is Player)
+                {
+                    var player = (Player)other;
+                    player.Damage();
+                }
+                else
+                {
+                    other.IsDead = true;
+                }
+            }
         }
     }
 }

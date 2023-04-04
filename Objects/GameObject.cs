@@ -12,14 +12,14 @@ using static System.Formats.Asn1.AsnWriter;
 
 namespace BacterialBarrage.Objects
 {
-    internal abstract class GameObject : ICollisionActor
-    {     
+    internal abstract class GameObject
+    {
+        private const int boundsAdjustment = 0;
         public Vector2 Position { get; set; }
         public float Rotation { get; set; }
         public Vector2 Scale { get; set; }
-        public IShapeF Bounds => new RectangleF(Position.X, Position.Y, Texture.Width / _animationFrames * Scale.X, Texture.Height * Scale.Y);//Sprite.GetBoundingRectangle(Position, Rotation, Scale);
-        //public Sprite Sprite { get; set; }
-        public bool IsDead { get; protected set; }
+        public RectangleF Bounds => new RectangleF(Position.X - boundsAdjustment * Scale.X, Position.Y - boundsAdjustment * Scale.X, Texture.Width / _animationFrames * Scale.X + boundsAdjustment * Scale.X, Texture.Height * Scale.Y + boundsAdjustment * Scale.X);
+        public bool IsDead { get; set; }
         public Rectangle SourceRectangle { get; private set; }
         public Texture2D Texture { get; set; }
         public Vector2 Velocity { get; set; }
@@ -34,8 +34,6 @@ namespace BacterialBarrage.Objects
             _animationTimeTracker = 0.0;
 
             Texture = texture;
-
-            //Sprite = new Sprite(Texture);
         }
 
         public virtual void Update(GameTime gameTime)
@@ -54,6 +52,6 @@ namespace BacterialBarrage.Objects
             SourceRectangle = new Rectangle((Texture.Width / _animationFrames * _animationFrame), 0, Texture.Width / _animationFrames, Texture.Height);
         }
 
-        public abstract void OnCollision(CollisionEventArgs collisionEvent);
+        public abstract void OnCollision(GameObject otherObj);
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
-using MonoGame.Extended.Collisions;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Screens;
 using System;
@@ -25,7 +24,6 @@ namespace BacterialBarrage.Screens
         private Texture2D _antibodyTexture;
         private Texture2D _rnaTexture;
         private Texture2D _playerTexture;
-        private readonly CollisionComponent _collisionComponent;
         private Player _player1;
         private Player _player2;
         private List<List<Germ>> _enemies;
@@ -41,7 +39,6 @@ namespace BacterialBarrage.Screens
         public GameplayScreen(Game game) : base(game) 
         {
             _aHasBeenUp = false;
-            _collisionComponent = new CollisionComponent(new MonoGame.Extended.RectangleF(0, 0, ScreenWidth, ScreenHeight));
             _currentLevel = 1;
 
         }
@@ -63,6 +60,8 @@ namespace BacterialBarrage.Screens
 
         public override void Update(GameTime gameTime)
         {
+            CheckCollisions();
+
             var kstate = KeyboardExtended.GetState();
             var p1GamepadState = GamePad.GetState(PlayerIndex.One);
             var p2GamepadState = GamePad.GetState(PlayerIndex.Two);
@@ -82,12 +81,42 @@ namespace BacterialBarrage.Screens
                     if(obj.IsDead)
                         deadObjects.Add(obj);
                 }
-
-                foreach(var obj in deadObjects)
+                bool shiftRows = false;
+                bool atLeastOneGermAlive = false;
+                foreach(var germRow in _enemies)
                 {
-                    _allOnScreenObjects.Remove(obj);
-                    _collisionComponent.Remove(obj);
+                    foreach (var germ in germRow)
+                    {
+                        atLeastOneGermAlive = atLeastOneGermAlive || !germ.IsDead;
+
+                        if (germ.Position.X > ScreenWidth / 8 * 7 || germ.Position.X < ScreenWidth / 8)
+                        {
+                            shiftRows = true;
+                            break;
+                        }
+                    }
                 }
+
+                if (!atLeastOneGermAlive)
+                {
+                    _currentLevel++;
+                    CreateNewLevel();
+                }
+
+                if (shiftRows)
+                {
+                    foreach(var germRow in _enemies)
+                    {
+                        foreach( var germ in germRow)
+                        {
+                            germ.Velocity = new Vector2(germ.Velocity.X * -1, 10 * _scale);
+                        }
+                    }
+                }
+
+                foreach(var obj in deadObjects)                
+                    _allOnScreenObjects.Remove(obj);
+                
                 //Make sure we're not still catching the button press from the previous screen or previous fire
                 if ((p1GamepadState.Buttons.A == ButtonState.Pressed && _aHasBeenUp) || kstate.WasKeyJustDown(Keys.Space) || kstate.WasKeyJustDown(Keys.W))
                 {
@@ -110,11 +139,11 @@ namespace BacterialBarrage.Screens
                             Rotation = 0f
                         };
                         _allOnScreenObjects.Add(_player2);
-                        _collisionComponent.Insert(_player2);
+                        //_collisionComponent.Insert(_player2);
                     }
                     else
                     {
-                        _collisionComponent.Remove(_player2);
+                        //_collisionComponent.Remove(_player2);
                         _allOnScreenObjects.Remove(_player2);
                         _player2 = null;                        
                     }
@@ -137,6 +166,18 @@ namespace BacterialBarrage.Screens
                 ScreenManager.LoadScreen(new TitleScreen(Game));
             if (p1GamepadState.Buttons.A == ButtonState.Released)
                 _aHasBeenUp = true;
+        }
+
+        private void CheckCollisions()
+        {
+            foreach (var obj in _allOnScreenObjects)
+            {
+                foreach (var obj2 in _allOnScreenObjects)
+                {
+                    if (obj.Bounds.Intersects(obj2.Bounds))
+                        obj.OnCollision(obj2);
+                }
+            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -184,6 +225,13 @@ namespace BacterialBarrage.Screens
                         obj.Scale,
                         SpriteEffects.None,
                         0f);
+
+                    //Texture2D _texture;
+
+                    //_texture = new Texture2D(GraphicsDevice, 1, 1);
+                    //_texture.SetData(new Color[] { Color.Red });
+
+                    //_spriteBatch.Draw(_texture, ((RectangleF)obj.Bounds).ToRectangle(), Color.White);
                 }
             }
 
@@ -196,7 +244,7 @@ namespace BacterialBarrage.Screens
             _attacks = new List<Attack>();
             _allOnScreenObjects = new List<GameObject>();
             _roundCountDown = 0;
-            _stillInCountDown = false;
+            _stillInCountDown = true;
             if (_player1 == null)
             {
                 _player1 = new Player(_playerTexture)
@@ -207,8 +255,15 @@ namespace BacterialBarrage.Screens
                     Rotation = 0f
                 };
                 _allOnScreenObjects.Add(_player1);
-                _collisionComponent.Insert(_player1);
             }
+            else
+            {
+                _allOnScreenObjects.Add(_player1);
+            }
+
+            if( _player2 != null)             
+                _allOnScreenObjects.Add(_player2);
+            
             Random random = new Random();
             for(int row = 0; row < _enemyRows; row++)
             {               
@@ -249,11 +304,10 @@ namespace BacterialBarrage.Screens
                             };                    
                             break;
                     }
-                    newGerm.Velocity = new Vector2(1 * _scale, 0);
+                    newGerm.Velocity = new Vector2(10 * _scale, 0);
                     newGerm.Position = new Vector2(ScreenWidth / 2 - (_bacteria1Texture.Height * newGerm.Scale.Y + 4 * _scale) * (6 - enemyNo), 20 * _scale + 12 * _scale * (row + 1));
                     germRow.Add(newGerm);
                     _allOnScreenObjects.Add(newGerm);
-                    _collisionComponent.Insert(newGerm);
                 }
                 _enemies.Add(germRow);
             }
@@ -265,7 +319,7 @@ namespace BacterialBarrage.Screens
             Antibody antibody = new Antibody(_antibodyTexture)
             {
                 Scale = new Vector2(_scale / 8, _scale / 8),
-                Rotation = 0f
+                Rotation = 0f,
             };
 
             if(player == PlayerIndex.One)
@@ -278,8 +332,7 @@ namespace BacterialBarrage.Screens
                 antibody.Position = _player2.Position;
             }
             _attacks.Add(antibody);
-            _allOnScreenObjects.Add(antibody);
-            _collisionComponent.Insert(antibody);
+            _allOnScreenObjects.Add(antibody);    
         }
 
         private void MoveLeft(PlayerIndex player, GameTime gameTime) { }

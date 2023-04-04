@@ -16,12 +16,23 @@ namespace BacterialBarrage.Objects
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            Velocity = new Vector2(0, -300 * Scale.Y);
+            if(Velocity.Y >= 0)
+                Velocity = new Vector2(0, -1000 * Scale.Y);
+
+            if (Position.X < 0)            
+                IsDead = true;
+            
         }
-        public override void OnCollision(CollisionEventArgs collisionEvent) 
+        public override void OnCollision(GameObject other) 
         {
-            if(collisionEvent.Other is Germ || collisionEvent.Other is RNA)            
-                IsDead = true;           
+            if (!IsDead)
+            {
+                if (other is Germ || other is RNA)
+                {
+                    IsDead = true;
+                    other.IsDead = true;
+                }
+            }
         }
     }
 }

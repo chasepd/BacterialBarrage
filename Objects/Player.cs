@@ -22,11 +22,27 @@ namespace BacterialBarrage.Objects
             _animationFrames = 16;
         }
 
-        public override void OnCollision(CollisionEventArgs collisionEvent)
+        public void Damage()
         {
-            if((collisionEvent.Other is Germ || collisionEvent.Other is RNA) && LivesRemaining <= 0)            
+            LivesRemaining--;
+            if (LivesRemaining <= 0)
+            {
                 IsDead = true;
-            
+            }
+        }
+
+        public void AddScore (int score)
+        {
+            Score += score;
+        }
+
+        public override void OnCollision(GameObject other)
+        {
+            if ((other is Germ || other is RNA) && !other.IsDead)
+            {
+                Damage();   
+                other.IsDead = true;
+            }
         }
     }
 }
