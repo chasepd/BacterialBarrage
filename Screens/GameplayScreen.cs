@@ -36,6 +36,7 @@ namespace BacterialBarrage.Screens
         private bool _aHasBeenUp;
         private const int _enemiesPerRow = 12;
         private const int _enemyRows = 5;
+        private const int _playerMovementMagnitude = 100;
         public GameplayScreen(Game game) : base(game) 
         {
             _aHasBeenUp = false;
@@ -116,16 +117,20 @@ namespace BacterialBarrage.Screens
 
                 foreach(var obj in deadObjects)                
                     _allOnScreenObjects.Remove(obj);
+
+                _player1.Velocity = Vector2.Zero;
+                if(_player2 != null)
+                    _player2.Velocity = Vector2.Zero;
                 
                 //Make sure we're not still catching the button press from the previous screen or previous fire
                 if ((p1GamepadState.Buttons.A == ButtonState.Pressed && _aHasBeenUp) || kstate.WasKeyJustDown(Keys.Space) || kstate.WasKeyJustDown(Keys.W))
                 {
-                    Fire(PlayerIndex.One);
+                    Fire(_player1);
                     _aHasBeenUp = false;
                 }
 
                 if ((p2GamepadState.Buttons.A == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.Up)) && _player2 != null)
-                    Fire(PlayerIndex.Two);
+                    Fire(_player2);
 
                 if (p1GamepadState.Buttons.Y == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.P))
                 {
@@ -150,16 +155,16 @@ namespace BacterialBarrage.Screens
                 }
                     
                 if (kstate.IsKeyDown(Keys.A))
-                    MoveLeft(PlayerIndex.One, gameTime);
+                    MoveLeft(_player1, gameTime);
 
                 if (kstate.IsKeyDown(Keys.Left) && _player2 != null)
-                    MoveLeft(PlayerIndex.Two, gameTime);
+                    MoveLeft(_player2, gameTime);
 
                 if (kstate.IsKeyDown(Keys.D))
-                    MoveRight(PlayerIndex.One, gameTime);
+                    MoveRight(_player1, gameTime);
 
                 if (kstate.IsKeyDown(Keys.Right) && _player2 != null)
-                    MoveRight(PlayerIndex.Two, gameTime);
+                    MoveRight(_player2, gameTime);
 
             }
             if (p1GamepadState.Buttons.Back == ButtonState.Pressed || kstate.WasKeyJustDown(Keys.Escape))
@@ -233,7 +238,17 @@ namespace BacterialBarrage.Screens
 
                     //_spriteBatch.Draw(_texture, ((RectangleF)obj.Bounds).ToRectangle(), Color.White);
                 }
+                _spriteBatch.DrawRectangle(new RectangleF(
+                    0,
+                    ScreenHeight - (25 * _scale),
+                    ScreenWidth,
+                    1 * _scale
+                    ),
+                    Color.White,
+                    thickness: _scale
+                    );
             }
+            DrawScores();
 
             _spriteBatch.End();
         }
@@ -249,7 +264,7 @@ namespace BacterialBarrage.Screens
             {
                 _player1 = new Player(_playerTexture)
                 {
-                    Position = new Vector2(ScreenWidth / 2 - (_playerTexture.Height * _scale / 8 / 2) , ScreenHeight - (10 * _scale)),
+                    Position = new Vector2(ScreenWidth / 2 - (_playerTexture.Height * _scale / 8 / 2) , ScreenHeight - (40 * _scale)),
                     Velocity = new Vector2(0, 0),
                     Scale = new Vector2(_scale / 8, _scale / 8),
                     Rotation = 0f
@@ -304,7 +319,7 @@ namespace BacterialBarrage.Screens
                             };                    
                             break;
                     }
-                    newGerm.Velocity = new Vector2(10 * _scale, 0);
+                    newGerm.Velocity = new Vector2(10 * _currentLevel * _scale, 0);
                     newGerm.Position = new Vector2(ScreenWidth / 2 - (_bacteria1Texture.Height * newGerm.Scale.Y + 4 * _scale) * (6 - enemyNo), 20 * _scale + 12 * _scale * (row + 1));
                     germRow.Add(newGerm);
                     _allOnScreenObjects.Add(newGerm);
@@ -314,7 +329,76 @@ namespace BacterialBarrage.Screens
             
         }
 
-        private void Fire(PlayerIndex player)
+        private void DrawScores()
+        {
+            _spriteBatch.DrawString(
+               _font,
+               "SCORE<1>",
+               new Vector2((ScreenWidth / 6) - _font.MeasureString("SCORE<1>").X / 2 * _scale / 8, 0),
+               Color.White,
+               0f,
+               Vector2.One,
+               _scale / 8,
+               SpriteEffects.None,
+               0f);
+
+            _spriteBatch.DrawString(
+                _font,
+                "HI-SCORE",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("HI-SCORE").X / 2 * _scale / 8, 0),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+            _spriteBatch.DrawString(
+                _font,
+                _player1.Score.ToString("D4"),
+                new Vector2((ScreenWidth / 6) - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+
+            _spriteBatch.DrawString(
+                _font,
+                GameState.HighScore.ToString("D4"),
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+            if (_player2 != null)
+            {
+                _spriteBatch.DrawString(
+                    _font,
+                    "SCORE<2>",
+                    new Vector2((ScreenWidth / 6) * 5 - _font.MeasureString("SCORE<2>").X / 2 * _scale / 8, 0),
+                    Color.White,
+                    0f,
+                    Vector2.One,
+                    _scale / 8,
+                    SpriteEffects.None,
+                    0f);
+                _spriteBatch.DrawString(
+                    _font,
+                    _player2.Score.ToString("D4"),
+                    new Vector2((ScreenWidth / 6) * 5 - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                    Color.White,
+                    0f,
+                    Vector2.One,
+                    _scale / 8,
+                    SpriteEffects.None,
+    0f);
+            }
+        }
+
+        private void Fire(Player player)
         {
             Antibody antibody = new Antibody(_antibodyTexture)
             {
@@ -322,26 +406,37 @@ namespace BacterialBarrage.Screens
                 Rotation = 0f,
             };
 
-            if(player == PlayerIndex.One)
-            {
-                antibody.Position = _player1.Position;
-            }
+            antibody.Player = player;
+            antibody.Position = player.Position;
 
-            if(player == PlayerIndex.Two)
-            {
-                antibody.Position = _player2.Position;
-            }
             _attacks.Add(antibody);
             _allOnScreenObjects.Add(antibody);    
         }
 
-        private void MoveLeft(PlayerIndex player, GameTime gameTime) { }
-
-        private void MoveRight(PlayerIndex player, GameTime gameTime) { }
-
-        private void ConstrainPlayer()
+        private void MoveLeft(Player player, GameTime gameTime) 
         {
+            player.Velocity = new Vector2(-_playerMovementMagnitude * _scale, 0);
+            ConstrainPlayer(player);
+        }
 
+        private void MoveRight(Player player, GameTime gameTime) 
+        {
+            player.Velocity = new Vector2(_playerMovementMagnitude * _scale, 0);
+            ConstrainPlayer(player);
+        }
+
+        private void ConstrainPlayer(Player player)
+        {
+            if (player.Position.X < ScreenWidth / 8)
+            {
+                player.Position = new Vector2(ScreenWidth / 8, player.Position.Y);
+                player.Velocity = Vector2.Zero;
+            }
+            if(player.Position.X > ScreenWidth / 8 * 7)
+            {
+                player.Position = new Vector2(ScreenWidth / 8 * 7, player.Position.Y);
+                player.Velocity = Vector2.Zero;
+            }
         }
     }
 }

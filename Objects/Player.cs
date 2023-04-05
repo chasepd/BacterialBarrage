@@ -34,6 +34,8 @@ namespace BacterialBarrage.Objects
         public void AddScore (int score)
         {
             Score += score;
+            if (Score > GameState.HighScore)
+                GameState.HighScore = Score;
         }
 
         public override void OnCollision(GameObject other)

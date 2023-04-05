@@ -94,6 +94,40 @@ namespace BacterialBarrage.Screens
 
             _spriteBatch.DrawString(
                 _font,
+                "0000",
+                new Vector2((ScreenWidth / 6) - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+
+            _spriteBatch.DrawString(
+                _font,
+                "0000",
+                new Vector2((ScreenWidth / 2) - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+
+            _spriteBatch.DrawString(
+                _font,
+                "0000",
+                new Vector2((ScreenWidth / 6) * 5 - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                Color.White,
+                0f,
+                Vector2.One,
+                _scale / 8,
+                SpriteEffects.None,
+                0f);
+
+
+            _spriteBatch.DrawString(
+                _font,
                 "PRESS ENTER OR START TO PLAY",
                 new Vector2((ScreenWidth / 2) - _font.MeasureString("PRESS ENTER OR START TO PLAY").X / 2 * _scale / 8, ScreenHeight / 12 * 2),
                 Color.White,

@@ -44,10 +44,6 @@ namespace BacterialBarrage.Objects
                     var player = (Player)other;
                     player.Damage();
                 }
-                else
-                {
-                    other.IsDead = true;
-                }
             }
         }
     }

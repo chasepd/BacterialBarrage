@@ -11,6 +11,7 @@ namespace BacterialBarrage.Objects
 {
     internal class Antibody : Attack
     {
+        public Player Player { get; set; }
         public Antibody(Texture2D texture) : base(texture) { }
 
         public override void Update(GameTime gameTime)
@@ -31,6 +32,12 @@ namespace BacterialBarrage.Objects
                 {
                     IsDead = true;
                     other.IsDead = true;
+                    if (other is Germ)
+                    {
+                        Germ germ = (Germ)other;
+                        Player.AddScore(germ.PointValue);
+                    }
+
                 }
             }
         }
