@@ -1,7 +1,9 @@
 ﻿using BacterialBarrage.Objects;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MonoGame.Extended;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Screens;
@@ -24,6 +26,13 @@ namespace BacterialBarrage.Screens
         private Texture2D _antibodyTexture;
         private Texture2D _rnaTexture;
         private Texture2D _playerTexture;
+        private Texture2D _player2Texture;
+        private Texture2D _explosionTexture;
+        private SoundEffect _germDeath;
+        private SoundEffect _playerDeath;
+        private SoundEffect _playerShoot;
+        private SoundEffect _germShoot;
+        private Song virusPresent;
         private Player _player1;
         private Player _player2;
         private List<List<Germ>> _enemies;
@@ -56,6 +65,14 @@ namespace BacterialBarrage.Screens
             _antibodyTexture = Content.Load<Texture2D>("Antibody");
             _rnaTexture = Content.Load<Texture2D>("RNA-Attack");
             _playerTexture = Content.Load<Texture2D>("WhiteBloodCell");
+            _player2Texture = Content.Load<Texture2D>("WhiteBloodCellP2");
+            _explosionTexture = Content.Load<Texture2D>("Explosion");
+
+            _germDeath = Content.Load<SoundEffect>("EnemyHit");
+            _playerDeath = Content.Load<SoundEffect>("PlayerHit");
+            _playerShoot = Content.Load<SoundEffect>("PlayerShoot");
+            _germShoot = Content.Load<SoundEffect>("EnemyShoot");
+            virusPresent = Content.Load<Song>("VirusPresent");
             CreateNewLevel();
         }
 
@@ -115,8 +132,18 @@ namespace BacterialBarrage.Screens
                     }
                 }
 
-                foreach(var obj in deadObjects)                
+                foreach (var obj in deadObjects)
+                {
                     _allOnScreenObjects.Remove(obj);
+                    if (obj is Germ)
+                        _allOnScreenObjects.Add(new Explosion(_explosionTexture, _germDeath)
+                        {
+                            Position = obj.Position,
+                            Velocity = Vector2.Zero,
+                            Rotation = 0f,
+                            Scale = new Vector2(_scale / 4, _scale / 4)
+                        });
+                }
 
                 _player1.Velocity = Vector2.Zero;
                 if(_player2 != null)
@@ -136,10 +163,10 @@ namespace BacterialBarrage.Screens
                 {
                     if (_player2 == null)
                     {
-                        _player2 = new Player(_playerTexture)
+                        _player2 = new Player(_player2Texture)
                         {
-                            Position = new Vector2(0, 0),
-                            Velocity = new Vector2(0, 0),
+                            Position = new Vector2(ScreenWidth / 2 - (_playerTexture.Height * _scale / 8 / 2), ScreenHeight - (40 * _scale)),
+                            Velocity = Vector2.Zero,
                             Scale = new Vector2(_scale / 8, _scale / 8),
                             Rotation = 0f
                         };
@@ -249,6 +276,7 @@ namespace BacterialBarrage.Screens
                     );
             }
             DrawScores();
+            DrawLives();
 
             _spriteBatch.End();
         }
@@ -355,7 +383,7 @@ namespace BacterialBarrage.Screens
             _spriteBatch.DrawString(
                 _font,
                 _player1.Score.ToString("D4"),
-                new Vector2((ScreenWidth / 6) - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                new Vector2((ScreenWidth / 6) - _font.MeasureString(_player1.Score.ToString("D4")).X / 2 * _scale / 8, ScreenHeight / 20),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -366,7 +394,7 @@ namespace BacterialBarrage.Screens
             _spriteBatch.DrawString(
                 _font,
                 GameState.HighScore.ToString("D4"),
-                new Vector2((ScreenWidth / 2) - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                new Vector2((ScreenWidth / 2) - _font.MeasureString(GameState.HighScore.ToString("D4")).X / 2 * _scale / 8, ScreenHeight / 20),
                 Color.White,
                 0f,
                 Vector2.One,
@@ -388,14 +416,67 @@ namespace BacterialBarrage.Screens
                 _spriteBatch.DrawString(
                     _font,
                     _player2.Score.ToString("D4"),
-                    new Vector2((ScreenWidth / 6) * 5 - _font.MeasureString("0000").X / 2 * _scale / 8, ScreenHeight / 20),
+                    new Vector2((ScreenWidth / 6) * 5 - _font.MeasureString(_player2.Score.ToString("D4")).X / 2 * _scale / 8, ScreenHeight / 20),
                     Color.White,
                     0f,
                     Vector2.One,
                     _scale / 8,
                     SpriteEffects.None,
-    0f);
+                    0f);
             }
+        }
+
+        private void DrawLives()
+        {
+            _spriteBatch.DrawString(
+                    _font,
+                    "P1 LIVES:",
+                    new Vector2((ScreenWidth / 8) * 2 - _font.MeasureString("P1 LIVES:").X / 2 * _scale / 8, ScreenHeight - (10 * _scale)),
+                    Color.White,
+                    0f,
+                    Vector2.One,
+                    _scale / 8,
+                    SpriteEffects.None,
+                    0f);
+            for (int life = 0; life < _player1.LivesRemaining - 1; life++)
+                _spriteBatch.Draw(
+                    _playerTexture,
+                    new Vector2(ScreenWidth / 8 * 2 + _font.MeasureString("P1 LIVES:").X / 2 * _scale / 8 + (_playerTexture.Height * _scale / 8) * life + (2 * _scale * (life + 1)), ScreenHeight - (10 * _scale)),
+                    new Rectangle(0, 0, _playerTexture.Height, _playerTexture.Height),
+                    Color.White,
+                    0f,
+                    Vector2.One,
+                    _scale / 8,
+                    SpriteEffects.None,
+                    0f
+                    );
+
+            if(_player2 != null)
+            {
+                _spriteBatch.DrawString(
+                    _font,
+                    "P2 LIVES:",
+                    new Vector2((ScreenWidth / 8) * 5 - _font.MeasureString("P2 LIVES:").X / 2 * _scale / 8, ScreenHeight - (10 * _scale)),
+                    Color.White,
+                    0f,
+                    Vector2.One,
+                    _scale / 8,
+                    SpriteEffects.None,
+                    0f);
+                for (int life = 0; life < _player2.LivesRemaining - 1; life++)
+                    _spriteBatch.Draw(
+                        _player2Texture,
+                        new Vector2(ScreenWidth / 8 * 5 + _font.MeasureString("P2 LIVES:").X / 2 * _scale / 8 + (_playerTexture.Height * _scale / 8) * life + (2 * _scale * (life + 1)), ScreenHeight - (10 * _scale)),
+                        new Rectangle(0, 0, _playerTexture.Height, _playerTexture.Height),
+                        Color.White,
+                        0f,
+                        Vector2.One,
+                        _scale / 8,
+                        SpriteEffects.None,
+                        0f
+                        );
+            }
+
         }
 
         private void Fire(Player player)
@@ -410,7 +491,8 @@ namespace BacterialBarrage.Screens
             antibody.Position = player.Position;
 
             _attacks.Add(antibody);
-            _allOnScreenObjects.Add(antibody);    
+            _allOnScreenObjects.Add(antibody);
+            _playerShoot.Play();
         }
 
         private void MoveLeft(Player player, GameTime gameTime) 

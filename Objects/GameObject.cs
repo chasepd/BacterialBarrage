@@ -24,9 +24,9 @@ namespace BacterialBarrage.Objects
         public Texture2D Texture { get; set; }
         public Vector2 Velocity { get; set; }
         protected int _animationFrames;
-        private int _animationFrame;
+        protected int _animationFrame;
         private double _animationTimeTracker;
-        private const double _animationTimeDelay = 0.5;
+        protected double _animationTimeDelay = 0.5;
 
         public GameObject(Texture2D texture)
         {
