@@ -36,6 +36,7 @@ namespace BacterialBarrage.Screens
         private Player _player1;
         private Player _player2;
         private List<List<Germ>> _enemies;
+        private List<Virus> _viruses;
         private List<Attack> _attacks;
         private List<Shield> _shields;
         private List<GameObject> _allOnScreenObjects;
@@ -50,6 +51,11 @@ namespace BacterialBarrage.Screens
         private double _songDelayTracker = 0;
         private List<SoundEffect> _notes;
         private int _noteIndex;
+        private double _enemyAttackChanceCooldown = 0.2;
+        private double _playerAttackCooldown = 0.2;
+        private double _virusChanceCooldown = 0.3;
+        private double _enemyAttackTimeTracker = 0;
+        private double _virusChanceTimeTracker = 0;
         public GameplayScreen(Game game) : base(game)
         {
             _aHasBeenUp = false;
@@ -100,6 +106,8 @@ namespace BacterialBarrage.Screens
             var kstate = KeyboardExtended.GetState();
             var p1GamepadState = GamePad.GetState(PlayerIndex.One);
             var p2GamepadState = GamePad.GetState(PlayerIndex.Two);
+            _enemyAttackTimeTracker += gameTime.GetElapsedSeconds();
+            _virusChanceTimeTracker += gameTime.GetElapsedSeconds();
             if (_stillInCountDown)
             {
                 _roundCountDown += gameTime.ElapsedGameTime.TotalSeconds;
@@ -118,7 +126,30 @@ namespace BacterialBarrage.Screens
                 }
                 bool shiftRows = false;
                 bool atLeastOneGermAlive = false;
-                foreach(var germRow in _enemies)
+
+                if (_viruses.Count > 0 && MediaPlayer.State != MediaState.Playing)
+                {
+                    MediaPlayer.Play(virusPresent);                 
+
+                }
+                else
+                {
+                    if (_viruses.Count == 0)
+                    {
+                        MediaPlayer.IsRepeating = false;
+                    }
+                }
+
+                foreach (Virus virus in _viruses)
+                {
+                    if (_enemyAttackTimeTracker > _enemyAttackChanceCooldown)
+                    {
+                        if (new Random().NextDouble() < virus.AttackChance)
+                            Fire(virus);
+                    }
+                }
+
+                foreach (var germRow in _enemies)
                 {
                     foreach (var germ in germRow)
                     {
@@ -127,8 +158,32 @@ namespace BacterialBarrage.Screens
                         if (germ.Position.X > ScreenWidth / 32 * 31 || germ.Position.X < ScreenWidth / 32)
                         {
                             shiftRows = true;
-                            break;
                         }
+                        if (_enemyAttackTimeTracker > _enemyAttackChanceCooldown)
+                        {
+                            if (new Random().NextDouble() < germ.AttackChance)
+                                Fire(germ);                            
+                        }
+                    }
+                }
+
+                atLeastOneGermAlive = atLeastOneGermAlive || _viruses.Count > 0;
+
+                if(_enemyAttackTimeTracker  < _enemyAttackChanceCooldown)
+                    _enemyAttackTimeTracker = 0;
+
+                if (_virusChanceTimeTracker > _virusChanceCooldown)
+                {
+                    if (new Random().NextDouble() < 0.0003 * _currentLevel)
+                    {
+                        Virus virus = new Virus(_virusTexture, ScreenWidth)
+                        {
+                            Scale = new Vector2(_scale / 8, _scale / 8),
+                            Rotation = 0f,
+                            Position = new Vector2(-200, ScreenHeight / 10)
+                        };
+                        _allOnScreenObjects.Add(virus);
+                        _viruses.Add(virus);
                     }
                 }
 
@@ -136,7 +191,7 @@ namespace BacterialBarrage.Screens
                 {
                     _currentLevel++;
                     CreateNewLevel();
-                }
+                }                
 
                 if (shiftRows)
                 {
@@ -164,11 +219,17 @@ namespace BacterialBarrage.Screens
                             Rotation = 0f,
                             Scale = new Vector2(_scale / 4, _scale / 4)
                         });
+                    if (obj is Virus virus)
+                        _viruses.Remove(virus);
                 }
 
                 _player1.Velocity = Vector2.Zero;
-                if(_player2 != null)
+                _player1.AttackCooldownTracker += gameTime.GetElapsedSeconds();
+                if (_player2 != null)
+                {
                     _player2.Velocity = Vector2.Zero;
+                    _player2.AttackCooldownTracker += gameTime.GetElapsedSeconds();
+                }
                 
                 //Make sure we're not still catching the button press from the previous screen or previous fire
                 if ((p1GamepadState.Buttons.A == ButtonState.Pressed && _aHasBeenUp) || kstate.WasKeyJustDown(Keys.Space) || kstate.WasKeyJustDown(Keys.W))
@@ -192,11 +253,9 @@ namespace BacterialBarrage.Screens
                             Rotation = 0f
                         };
                         _allOnScreenObjects.Add(_player2);
-                        //_collisionComponent.Insert(_player2);
                     }
                     else
                     {
-                        //_collisionComponent.Remove(_player2);
                         _allOnScreenObjects.Remove(_player2);
                         _player2 = null;                        
                     }
@@ -344,6 +403,7 @@ namespace BacterialBarrage.Screens
             _enemies = new List<List<Germ>>();
             _attacks = new List<Attack>();
             _allOnScreenObjects = new List<GameObject>();
+            _viruses = new List<Virus>();
             if(_shields == null)
             {
                 Texture2D _texture;
@@ -552,6 +612,10 @@ namespace BacterialBarrage.Screens
 
         private void Fire(Player player)
         {
+            if (player.AttackCooldownTracker < _playerAttackCooldown)
+                return;
+
+            player.AttackCooldownTracker = 0;
             Antibody antibody = new Antibody(_antibodyTexture)
             {
                 Scale = new Vector2(_scale / 16, _scale / 16),
@@ -563,10 +627,24 @@ namespace BacterialBarrage.Screens
 
             _attacks.Add(antibody);
             _allOnScreenObjects.Add(antibody);
-            _playerShoot.Play();
+            _playerShoot.CreateInstance().Play();
         }
 
-        private void MoveLeft(Player player, GameTime gameTime) 
+        private void Fire(Germ germ)
+        {
+            RNA rna = new RNA(_rnaTexture, ScreenHeight)
+            {
+                Scale = new Vector2(_scale / 16, _scale / 16),
+                Rotation = 0f,
+                Position = germ.Position
+            };
+            _attacks.Add(rna);
+            _allOnScreenObjects.Add(rna);
+            _germShoot.CreateInstance().Play();
+
+        }
+
+            private void MoveLeft(Player player, GameTime gameTime) 
         {
             player.Velocity = new Vector2(-_playerMovementMagnitude * _scale, 0);
             ConstrainPlayer(player);

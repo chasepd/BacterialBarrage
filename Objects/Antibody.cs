@@ -20,7 +20,7 @@ namespace BacterialBarrage.Objects
             if(Velocity.Y >= 0)
                 Velocity = new Vector2(0, -4000 * Scale.Y);
 
-            if (Position.X < 0)            
+            if (Position.Y < 0)            
                 IsDead = true;
             
         }

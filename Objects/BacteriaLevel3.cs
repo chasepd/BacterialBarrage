@@ -12,6 +12,7 @@ namespace BacterialBarrage.Objects
         public BacteriaLevel3(Texture2D texture) : base(texture)
         {
             PointValue = 30;
+            AttackChance = 0.0015;
         }
     }
 }

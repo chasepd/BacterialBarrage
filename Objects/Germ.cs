@@ -15,6 +15,8 @@ namespace BacterialBarrage.Objects
     {
         public int PointValue { get; protected set; }
 
+        public double AttackChance { get; protected set; }
+
         public Germ(Texture2D texture) : base(texture)
         {
             _animationFrames = 5;

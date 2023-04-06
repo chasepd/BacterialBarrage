@@ -16,10 +16,13 @@ namespace BacterialBarrage.Objects
         public int Score { get; set; }        
         public int LivesRemaining { get; private set; }
 
+        public double AttackCooldownTracker { get; set; }
+
         public Player(Texture2D texture) : base(texture) {
             Score = 0;
             LivesRemaining = 3;
             _animationFrames = 16;
+            AttackCooldownTracker = 0;
         }
 
         public void Damage()

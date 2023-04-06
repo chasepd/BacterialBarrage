@@ -11,9 +11,23 @@ namespace BacterialBarrage.Objects
 {
     internal class RNA : Attack
     {
-        public RNA(Texture2D texture) : base(texture)
+        private int _screenHeight;
+        public RNA(Texture2D texture, int screenHeight) : base(texture)
         {
-            Velocity = new Vector2(0, 5);
+            Velocity = new Vector2(0, 2000 * Scale.Y);
+            _screenHeight = screenHeight;
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            Velocity = new Vector2(0, 2000 * Scale.Y);
+
+            if (Position.Y > _screenHeight)
+            {
+                IsDead = true;
+            }
+
         }
         public override void OnCollision(GameObject other)
         {
