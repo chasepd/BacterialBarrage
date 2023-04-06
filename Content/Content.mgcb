@@ -49,6 +49,12 @@
 /processorParam:TextureFormat=Color
 /build:Back-Button.png
 
+#begin BackgroundMusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:BackgroundMusic.mp3
+
 #begin Bacteria1.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -85,6 +91,18 @@
 /processorParam:TextureFormat=Color
 /build:Bacteria3.png
 
+#begin CNote.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:CNote.wav
+
+#begin CSharpNote.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:CSharpNote.wav
+
 #begin EnemyHit.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
@@ -96,6 +114,12 @@
 /processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:EnemyShoot.wav
+
+#begin ENote.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:ENote.wav
 
 #begin Explosion.png
 /importer:TextureImporter

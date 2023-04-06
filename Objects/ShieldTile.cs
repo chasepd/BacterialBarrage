@@ -26,7 +26,7 @@ namespace BacterialBarrage.Objects
         public override void Update(GameTime gameTime) { }
         public override void OnCollision(GameObject other)
         {            
-            if ((other is RNA || other is Germ) && !other.IsDead)
+            if ((other is RNA || other is Germ || other is Antibody) && !other.IsDead)
             {
                 IsDead = true;
                 other.IsDead = true;

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using MonoGame.Extended.Input;
 using MonoGame.Extended.Screens;
 using System;
@@ -20,6 +22,7 @@ namespace BacterialBarrage.Screens
         private Texture2D _bacteria2Texture;
         private Texture2D _bacteria3Texture;
         private bool _backHasBeenUp;
+        private Song _backgroundMusic;
         public TitleScreen(Game game) : base(game) { }
 
         public override void LoadContent()
@@ -32,6 +35,12 @@ namespace BacterialBarrage.Screens
             _bacteria1Texture = Content.Load<Texture2D>("Bacteria1");
             _bacteria2Texture = Content.Load<Texture2D>("Bacteria2");
             _bacteria3Texture = Content.Load<Texture2D>("Bacteria3");
+            _backgroundMusic = Content.Load<Song>("BackgroundMusic");
+            GameState.CSharp = Content.Load<SoundEffect>("CSharpNote");
+            GameState.C = Content.Load<SoundEffect>("CNote");
+            GameState.E = Content.Load<SoundEffect>("ENote");
+
+            MediaPlayer.Play(_backgroundMusic);
         }
 
         public override void Update(GameTime gameTime)

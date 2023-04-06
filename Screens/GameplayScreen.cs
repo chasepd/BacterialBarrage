@@ -46,11 +46,16 @@ namespace BacterialBarrage.Screens
         private const int _enemiesPerRow = 12;
         private const int _enemyRows = 5;
         private const int _playerMovementMagnitude = 100;
-        public GameplayScreen(Game game) : base(game) 
+        private double _songDelay = 1.5;
+        private double _songDelayTracker = 0;
+        private List<SoundEffect> _notes;
+        private int _noteIndex;
+        public GameplayScreen(Game game) : base(game)
         {
             _aHasBeenUp = false;
             _currentLevel = 1;
-
+            _notes = new List<SoundEffect>() { GameState.C, GameState.E, GameState.CSharp, GameState.C };
+            _noteIndex = 0;
         }
 
         public override void LoadContent()
@@ -78,6 +83,18 @@ namespace BacterialBarrage.Screens
 
         public override void Update(GameTime gameTime)
         {
+            if (MediaPlayer.State == MediaState.Stopped)
+            {
+                _songDelayTracker += gameTime.GetElapsedSeconds();
+                if (_songDelayTracker > _songDelay)
+                {
+                    _notes[_noteIndex].CreateInstance().Play();
+                    _noteIndex++;
+                    if (_noteIndex >= _notes.Count)
+                        _noteIndex = 0;
+                    _songDelayTracker = 0;
+                }
+            }
             CheckCollisions();
 
             var kstate = KeyboardExtended.GetState();
@@ -107,7 +124,7 @@ namespace BacterialBarrage.Screens
                     {
                         atLeastOneGermAlive = atLeastOneGermAlive || !germ.IsDead;
 
-                        if (germ.Position.X > ScreenWidth / 8 * 7 || germ.Position.X < ScreenWidth / 8)
+                        if (germ.Position.X > ScreenWidth / 32 * 31 || germ.Position.X < ScreenWidth / 32)
                         {
                             shiftRows = true;
                             break;
@@ -123,6 +140,10 @@ namespace BacterialBarrage.Screens
 
                 if (shiftRows)
                 {
+                    _songDelay -= 0.2;
+                    if(_songDelay < 0.25)
+                        _songDelay = 0.25;
+                    
                     foreach(var germRow in _enemies)
                     {
                         foreach( var germ in germRow)
@@ -319,6 +340,7 @@ namespace BacterialBarrage.Screens
 
         private void CreateNewLevel()
         {
+            _songDelay = 1.5;
             _enemies = new List<List<Germ>>();
             _attacks = new List<Attack>();
             _allOnScreenObjects = new List<GameObject>();
@@ -397,7 +419,7 @@ namespace BacterialBarrage.Screens
                             break;
                     }
                     newGerm.Velocity = new Vector2(10 * _currentLevel * _scale, 0);
-                    newGerm.Position = new Vector2(ScreenWidth / 2 - (_bacteria1Texture.Height * newGerm.Scale.Y + 4 * _scale) * (6 - enemyNo), 20 * _scale + 12 * _scale * (row + 1));
+                    newGerm.Position = new Vector2(ScreenWidth / 2 - (_bacteria1Texture.Height * newGerm.Scale.Y + 14 * _scale) * (6 - enemyNo), 20 * _scale + 12 * _scale * (row + 1));
                     germRow.Add(newGerm);
                     _allOnScreenObjects.Add(newGerm);
                 }
@@ -532,7 +554,7 @@ namespace BacterialBarrage.Screens
         {
             Antibody antibody = new Antibody(_antibodyTexture)
             {
-                Scale = new Vector2(_scale / 8, _scale / 8),
+                Scale = new Vector2(_scale / 16, _scale / 16),
                 Rotation = 0f,
             };
 

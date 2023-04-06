@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +12,8 @@ namespace BacterialBarrage
     internal static class GameState
     {
         public static int HighScore;
+        public static SoundEffect C;
+        public static SoundEffect CSharp;
+        public static SoundEffect E;
     }
 }
