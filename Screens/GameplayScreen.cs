@@ -40,7 +40,8 @@ namespace BacterialBarrage.Screens
         private List<Attack> _attacks;
         private List<Shield> _shields;
         private List<GameObject> _allOnScreenObjects;
-        private double _roundCountDown;
+        private double _roundCountDown = 0;
+        private double _gameOverCountDown = 0;
         private int _currentLevel;
         private bool _stillInCountDown;
         private bool _aHasBeenUp;
@@ -56,8 +57,10 @@ namespace BacterialBarrage.Screens
         private double _virusChanceCooldown = 0.3;
         private double _enemyAttackTimeTracker = 0;
         private double _virusChanceTimeTracker = 0;
+        private bool _gameOver;
         public GameplayScreen(Game game) : base(game)
         {
+            _gameOver = false;
             _aHasBeenUp = false;
             _currentLevel = 1;
             _notes = new List<SoundEffect>() { GameState.C, GameState.E, GameState.CSharp, GameState.C };
@@ -110,11 +113,20 @@ namespace BacterialBarrage.Screens
             _virusChanceTimeTracker += gameTime.GetElapsedSeconds();
             if (_stillInCountDown)
             {
-                _roundCountDown += gameTime.ElapsedGameTime.TotalSeconds;
+                _roundCountDown += gameTime.GetElapsedSeconds();
                 if(_roundCountDown > 7)
                     _stillInCountDown = false;
             }
-            if(!_stillInCountDown)
+
+            if (_gameOver)
+            {
+                _gameOverCountDown += gameTime.GetElapsedSeconds();
+
+                if (_gameOverCountDown > 5)
+                    ScreenManager.LoadScreen(new TitleScreen(Game));
+            }
+
+            if(!_stillInCountDown && !_gameOver)
             {
                 List<GameObject> deadObjects = new List<GameObject>();
                 foreach(var obj in _allOnScreenObjects)
@@ -278,6 +290,9 @@ namespace BacterialBarrage.Screens
                 ScreenManager.LoadScreen(new TitleScreen(Game));
             if (p1GamepadState.Buttons.A == ButtonState.Released)
                 _aHasBeenUp = true;
+
+            if (_player1.IsDead && (_player2 == null || (_player2 != null && _player2.IsDead)))
+                _gameOver = true;
         }
 
         private void CheckCollisions()
@@ -344,6 +359,22 @@ namespace BacterialBarrage.Screens
                     SpriteEffects.None,
                     0f);
 
+            }
+            else if (_gameOver)
+            {
+                var text = "GAME OVER!";
+              
+                var adjustment = _font.MeasureString(text) * _scale / 4 / 2;
+
+                _spriteBatch.DrawString(_font,
+                    text,
+                    new Vector2(ScreenWidth / 2 - adjustment.X, ScreenHeight / 2 - adjustment.Y),
+                    Color.White,
+                    0f,
+                    Vector2.One,
+                    _scale / 4,
+                    SpriteEffects.None,
+                    0f);
             }
             else
             {
