@@ -171,7 +171,7 @@ namespace BacterialBarrage.Screens
                         {
                             shiftRows = true;
                         }
-                        if (_enemyAttackTimeTracker > _enemyAttackChanceCooldown)
+                        if (_enemyAttackTimeTracker > _enemyAttackChanceCooldown && !germ.IsDead)
                         {
                             if (new Random().NextDouble() < germ.AttackChance)
                                 Fire(germ);                            
@@ -215,7 +215,7 @@ namespace BacterialBarrage.Screens
                     {
                         foreach( var germ in germRow)
                         {
-                            germ.Velocity = new Vector2(Math.Abs(germ.Velocity.X * -1.3f) < ScreenWidth / 8? germ.Velocity.X * -1.3f : germ.Velocity.X * -1.1f, 10 * _scale);
+                            germ.Velocity = new Vector2(Math.Abs(germ.Velocity.X * -1.3f) < ScreenWidth / 6 ? germ.Velocity.X * -1.3f : germ.Velocity.X * -1f, 10 * _scale);
                         }
                     }
                 }
