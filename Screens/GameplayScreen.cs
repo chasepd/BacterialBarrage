@@ -127,7 +127,7 @@ namespace BacterialBarrage.Screens
                     {
                         foreach( var germ in germRow)
                         {
-                            germ.Velocity = new Vector2(germ.Velocity.X * -1, 10 * _scale);
+                            germ.Velocity = new Vector2(Math.Abs(germ.Velocity.X * -1.3f) < ScreenWidth / 8? germ.Velocity.X * -1.3f : germ.Velocity.X * -1.1f, 10 * _scale);
                         }
                     }
                 }
