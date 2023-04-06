@@ -14,13 +14,12 @@ namespace BacterialBarrage.Objects
 {
     internal abstract class GameObject
     {
-        private const int boundsAdjustment = 0;
         public Vector2 Position { get; set; }
         public float Rotation { get; set; }
         public Vector2 Scale { get; set; }
-        public RectangleF Bounds => new RectangleF(Position.X - boundsAdjustment * Scale.X, Position.Y - boundsAdjustment * Scale.X, Texture.Width / _animationFrames * Scale.X + boundsAdjustment * Scale.X, Texture.Height * Scale.Y + boundsAdjustment * Scale.X);
+        public virtual RectangleF Bounds => new RectangleF(Position.X, Position.Y, Texture.Width / _animationFrames * Scale.X, Texture.Height * Scale.Y);
         public bool IsDead { get; set; }
-        public Rectangle SourceRectangle { get; private set; }
+        public virtual Rectangle SourceRectangle { get; protected set; }
         public Texture2D Texture { get; set; }
         public Vector2 Velocity { get; set; }
         protected int _animationFrames;

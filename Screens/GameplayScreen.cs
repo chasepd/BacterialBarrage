@@ -37,7 +37,7 @@ namespace BacterialBarrage.Screens
         private Player _player2;
         private List<List<Germ>> _enemies;
         private List<Attack> _attacks;
-        private List<ShieldTile> shieldTiles;
+        private List<Shield> _shields;
         private List<GameObject> _allOnScreenObjects;
         private double _roundCountDown;
         private int _currentLevel;
@@ -210,6 +210,27 @@ namespace BacterialBarrage.Screens
                         obj.OnCollision(obj2);
                 }
             }
+            foreach(var shield in _shields)
+            {
+                List<ShieldTile> deadTiles = new List<ShieldTile>();
+                foreach(var shieldTile in shield.ShieldTiles)
+                {
+                    foreach(var obj in _allOnScreenObjects)
+                    {
+                        if (shieldTile.Bounds.Intersects(obj.Bounds))
+                        {
+                            shieldTile.OnCollision(obj);
+                            break;
+                        }
+                    }
+                    if (shieldTile.IsDead)
+                        deadTiles.Add(shieldTile);
+                }
+                foreach(var shieldTile in deadTiles)
+                {
+                    shield.KillTile(shieldTile);
+                }
+            }
         }
 
         public override void Draw(GameTime gameTime)
@@ -265,6 +286,21 @@ namespace BacterialBarrage.Screens
 
                     //_spriteBatch.Draw(_texture, ((RectangleF)obj.Bounds).ToRectangle(), Color.White);
                 }
+                foreach (var shield in _shields)
+                {
+                    var shieldTiles = shield.ShieldTiles;
+                    foreach(var tile in shieldTiles)
+                    {
+                        _spriteBatch.Draw(tile.Texture,
+                        tile.Bounds.ToRectangle(),
+                        tile.SourceRectangle,
+                        Color.White,
+                        tile.Rotation,
+                        Vector2.One,
+                        SpriteEffects.None,
+                        0f);
+                    }
+                }
                 _spriteBatch.DrawRectangle(new RectangleF(
                     0,
                     ScreenHeight - (25 * _scale),
@@ -286,6 +322,19 @@ namespace BacterialBarrage.Screens
             _enemies = new List<List<Germ>>();
             _attacks = new List<Attack>();
             _allOnScreenObjects = new List<GameObject>();
+            if(_shields == null)
+            {
+                Texture2D _texture;
+
+                _texture = new Texture2D(GraphicsDevice, 1, 1);
+                _texture.SetData(new Color[] { Color.Green });
+                _shields = new List<Shield>()
+                    {new Shield(_texture, new Vector2(ScreenWidth / 5, ScreenHeight / 4 * 3), _scale),
+                    new Shield(_texture, new Vector2(ScreenWidth / 5 * 2, ScreenHeight / 4 * 3), _scale),
+                    new Shield(_texture, new Vector2(ScreenWidth / 5 * 3, ScreenHeight / 4 * 3), _scale),
+                    new Shield(_texture, new Vector2(ScreenWidth / 5 * 4, ScreenHeight / 4 * 3), _scale)
+                    };
+            }
             _roundCountDown = 0;
             _stillInCountDown = true;
             if (_player1 == null)
