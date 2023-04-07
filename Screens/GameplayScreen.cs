@@ -273,16 +273,16 @@ namespace BacterialBarrage.Screens
                     }
                 }
                     
-                if (kstate.IsKeyDown(Keys.A))
+                if (kstate.IsKeyDown(Keys.A) || p1GamepadState.DPad.Left == ButtonState.Pressed)
                     MoveLeft(_player1, gameTime);
 
-                if (kstate.IsKeyDown(Keys.Left) && _player2 != null)
+                if ((kstate.IsKeyDown(Keys.Left) || p2GamepadState.DPad.Left == ButtonState.Pressed) && _player2 != null)
                     MoveLeft(_player2, gameTime);
 
-                if (kstate.IsKeyDown(Keys.D))
+                if (kstate.IsKeyDown(Keys.D) || p1GamepadState.DPad.Right == ButtonState.Pressed)
                     MoveRight(_player1, gameTime);
 
-                if (kstate.IsKeyDown(Keys.Right) && _player2 != null)
+                if ((kstate.IsKeyDown(Keys.Right) || p2GamepadState.DPad.Right == ButtonState.Pressed) && _player2 != null)
                     MoveRight(_player2, gameTime);
 
             }
